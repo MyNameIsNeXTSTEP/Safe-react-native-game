@@ -52,36 +52,6 @@ const PasswordInput = () => {
     return squares;
   };
 
-  const renderDigits = () => {
-    const digits = [];
-    // for (let i = 1; i < 10; i++) {
-      // digits.push(
-      //   <TouchableOpacity
-      //     key={i}
-      //     onPress={() => handleDigitPress(String(i))}
-      //     style={[
-      //       styles.digitButton,
-      //     ]}
-      //   >
-      //     <Text style={styles.digitButtonText}>{i}</Text>
-      //   </TouchableOpacity>
-      // );
-    // }
-      // digits.push(
-      //   <TouchableOpacity
-      //     key={0}
-      //     onPress={() => handleDigitPress(String(0))}
-      //     style={[
-      //       styles.digitButton,
-      //       styles.lastDigitsNumber 
-      //     ]}
-      //   >
-      //     <Text style={styles.digitButtonText}>{0}</Text>
-      //   </TouchableOpacity>
-      // );
-    return digits;
-  };
-
   return (
     <View style={styles.container}>
       <View style={styles.numberContainer}>{renderNumberSquares()}</View>
