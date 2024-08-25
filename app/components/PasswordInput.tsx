@@ -1,24 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import Sound from 'react-native-sound';
+import { ThemedText } from './ThemedText';
 
+const passwordCompareList = [
+  '1234',
+  '0000',
+]
 
 const PasswordInput = ({ onPasswordEntered }: { onPasswordEntered: (passwrod: string) => void }) => {
   const [password, setPassword] = useState('');
+  const [isResultOpen, setIsResultOpen] = useState(false);
 
-  // useEffect(() => {
-  //   const clickSound = new Sound('click.mp3', Sound.MAIN_BUNDLE, (error) => {
-  //     if (error) {
-  //       console.error('Error loading sound:', error);
-  //     } else {
-  //       clickSound.play();
-  //     }
-  //   });
-
-  //   // return () => {
-  //   //   clickSound.release();
-  //   // };
-  // }, [password]);
+  useEffect(() => {
+    if (password.length === 4 && passwordCompareList.includes(password)) { // show result
+      setIsResultOpen(true);
+    }
+    if (password.length === 3) { // reset after erasing
+      setIsResultOpen(false);
+    }
+  }, [password])
 
   const handleDigitPress = (digit: string) => {
     if (password.length < 4) {
@@ -91,6 +91,11 @@ const PasswordInput = ({ onPasswordEntered }: { onPasswordEntered: (passwrod: st
           </Text>
         </TouchableOpacity>
       </View>
+      {
+        isResultOpen && <ThemedText type='defaultSemiBold'>
+          Result!
+        </ThemedText>
+      }
     </View>
   );
 };

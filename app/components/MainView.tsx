@@ -1,4 +1,3 @@
-import type { PropsWithChildren, ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
 import Animated, {
   useAnimatedRef,
@@ -21,6 +20,7 @@ export default function MainView({
 
 const styles = StyleSheet.create({
   container: {
+    paddingTop: 100,
     overflow: 'scroll',
     flex: 1,
   },
