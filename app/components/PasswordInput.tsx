@@ -1,31 +1,67 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
+import { passwordCompareList } from '@/constants';
+import { green } from '@/constants/Colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const passwordCompareList = [
-  '1234',
-  '0000',
-];
+const storePassword = async (value: string) => {
+  try {
+    await AsyncStorage.setItem(value, JSON.stringify(value));
+  } catch (e) {
+    console.log(e);
+  }
+};
 
-const green = 'darkgreen';
+const getPassword = async (value: string) => {
+  try {
+    return !!(await AsyncStorage.getItem(value))?.length;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const clearAll = async () => {
+  try {
+    await AsyncStorage.clear();
+  } catch(e) {
+    console.log(e);
+  }
+}
 
 const PasswordInput = () => {
   const [password, setPassword] = useState('');
   const [isResultOpen, setIsResultOpen] = useState(false);
   const [resultType, setResultType] = useState<boolean | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const showResult = useCallback(() => {
+    setIsLoading(true);
+    setTimeout(() => setIsLoading(false), 2700);
+  }, [password]);
 
   useEffect(() => {
-    if (password.length === 4) { // show result
-      setIsResultOpen(true);
-      setResultType(
-        passwordCompareList.includes(password)
-      );
-    }
-    if (password.length === 3) { // reset after erasing
-      setIsResultOpen(false);
-      setResultType(null);
-    }
+    ( async () => {
+      if (password.length === 4) {
+        setIsResultOpen(true);
+        var passwordIsValid = passwordCompareList.includes(password);
+        var passwordWasUsed = await getPassword(password);
+        
+        if (passwordIsValid) {
+          storePassword(password);
+        }
+
+        setResultType(
+          !passwordWasUsed && passwordIsValid
+        );
+        showResult();
+      }
+      if (password.length === 3) {
+        setIsResultOpen(false);
+        setResultType(null);
+      }
+    })();
   }, [password])
 
   const handleDigitPress = (digit: string) => {
@@ -173,8 +209,14 @@ const PasswordInput = () => {
         </ThemedView>
 
       </View>
-      {
-        isResultOpen &&
+      { isLoading
+        ? <div>
+            <ActivityIndicator size="large" color={green} style={styles.loader}/>
+            <Text>
+              Продводим нереальные космические расчёты...
+            </Text>
+          </div>
+        : isResultOpen &&
           <ThemedText
             type='defaultSemiBold'
             style={resultType ? styles.sucessResult : styles.failureResult}
@@ -182,9 +224,9 @@ const PasswordInput = () => {
             {
               resultType
                 ? 'Поздравляем, вы вскрыли сейф и заслужили приз!!! \u{1F44F} \u{1F38A}'
-                : 'К сожалению пароль не верный, попробуйте ввести снова'
+                : 'К сожалению пароль не верный или уже использован, попробуйте ввести снова'
             }
-          </ThemedText>
+          </ThemedText>   
       }
     </View>
   );
@@ -233,7 +275,6 @@ const styles = StyleSheet.create({
     fontWeight: 500,
     color: green,
   },
-
   numberContainer: {
     flexDirection: 'row',
     marginBottom: 20,
@@ -260,6 +301,9 @@ const styles = StyleSheet.create({
   failureResult: {
     color: 'black',
     fontSize: 20,
+    marginTop: 36,
+  },
+  loader: {
     marginTop: 36,
   }
 });
