@@ -5,6 +5,7 @@ import { ThemedView } from './ThemedView';
 import { passwordCompareList } from '@/constants';
 import { green } from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Typewriter from './TypeWriter';
 
 const storePassword = async (value: string) => {
   try {
@@ -38,7 +39,10 @@ const PasswordInput = () => {
 
   const showResult = useCallback(() => {
     setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 2700);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 3300);
+    setTimeout(() => setPassword(''), 5000);
   }, [password]);
 
   useEffect(() => {
@@ -62,7 +66,8 @@ const PasswordInput = () => {
         setResultType(null);
       }
     })();
-  }, [password])
+  }, [password]);
+
 
   const handleDigitPress = (digit: string) => {
     if (password.length < 4) {
@@ -210,12 +215,7 @@ const PasswordInput = () => {
 
       </View>
       { isLoading
-        ? <div>
-            <ActivityIndicator size="large" color={green} style={styles.loader}/>
-            <Text>
-              Продводим нереальные космические расчёты...
-            </Text>
-          </div>
+        ? <Typewriter text='Проводим нереальные космические расчёты...' delay={50}/>
         : isResultOpen &&
           <ThemedText
             type='defaultSemiBold'
@@ -303,9 +303,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginTop: 36,
   },
-  loader: {
-    marginTop: 36,
-  }
 });
 
 export default PasswordInput;
