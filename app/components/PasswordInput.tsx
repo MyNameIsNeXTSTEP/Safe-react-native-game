@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { ThemedText } from './ThemedText';
+import { ThemedView } from './ThemedView';
 
 const passwordCompareList = [
   '1234',
@@ -53,47 +54,154 @@ const PasswordInput = () => {
 
   const renderDigits = () => {
     const digits = [];
-    for (let i = 1; i < 10; i++) {
-      digits.push(
-        <TouchableOpacity
-          key={i}
-          onPress={() => handleDigitPress(String(i))}
-          style={[
-            styles.digitButton,
-          ]}
-        >
-          <Text style={styles.digitButtonText}>{i}</Text>
-        </TouchableOpacity>
-      );
-    }
-      digits.push(
-        <TouchableOpacity
-          key={0}
-          onPress={() => handleDigitPress(String(0))}
-          style={[
-            styles.digitButton,
-            styles.lastDigitsNumber 
-          ]}
-        >
-          <Text style={styles.digitButtonText}>{0}</Text>
-        </TouchableOpacity>
-      );
+    // for (let i = 1; i < 10; i++) {
+      // digits.push(
+      //   <TouchableOpacity
+      //     key={i}
+      //     onPress={() => handleDigitPress(String(i))}
+      //     style={[
+      //       styles.digitButton,
+      //     ]}
+      //   >
+      //     <Text style={styles.digitButtonText}>{i}</Text>
+      //   </TouchableOpacity>
+      // );
+    // }
+      // digits.push(
+      //   <TouchableOpacity
+      //     key={0}
+      //     onPress={() => handleDigitPress(String(0))}
+      //     style={[
+      //       styles.digitButton,
+      //       styles.lastDigitsNumber 
+      //     ]}
+      //   >
+      //     <Text style={styles.digitButtonText}>{0}</Text>
+      //   </TouchableOpacity>
+      // );
     return digits;
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.numberContainer}>{renderNumberSquares()}</View>
-      <View style={styles.digitButtonsContainer}>
-        {renderDigits()}
-        <TouchableOpacity
-          onPress={handleErasePress}
-          style={[styles.digitButton, styles.eraseButton]}
-        >
-          <Text style={styles.eraseButtonText}>
-            {'<'}
-          </Text>
-        </TouchableOpacity>
+      <View>
+        <ThemedView style={styles.digitButtonsContainer}>
+          <TouchableOpacity
+            key={1}
+            onPress={() => handleDigitPress('1')}
+            style={[
+              styles.digitButton,
+            ]}
+          >
+            <Text style={styles.digitButtonText}>{1}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            key={2}
+            onPress={() => handleDigitPress('2')}
+            style={[
+              styles.digitButton,
+            ]}
+          >
+            <Text style={styles.digitButtonText}>{2}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            key={3}
+            onPress={() => handleDigitPress('3')}
+            style={[
+              styles.digitButton,
+            ]}
+          >
+            <Text style={styles.digitButtonText}>{3}</Text>
+          </TouchableOpacity>
+        </ThemedView>
+
+        <ThemedView style={styles.digitButtonsContainer}>
+          <TouchableOpacity
+            key={4}
+            onPress={() => handleDigitPress('4')}
+            style={[
+              styles.digitButton,
+            ]}
+          >
+            <Text style={styles.digitButtonText}>{4}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            key={5}
+            onPress={() => handleDigitPress('5')}
+            style={[
+              styles.digitButton,
+            ]}
+          >
+            <Text style={styles.digitButtonText}>{5}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            key={6}
+            onPress={() => handleDigitPress('6')}
+            style={[
+              styles.digitButton,
+            ]}
+          >
+            <Text style={styles.digitButtonText}>{6}</Text>
+          </TouchableOpacity>
+        </ThemedView>
+
+        <ThemedView style={styles.digitButtonsContainer}>
+          <TouchableOpacity
+            key={7}
+            onPress={() => handleDigitPress('7')}
+            style={[
+              styles.digitButton,
+            ]}
+          >
+            <Text style={styles.digitButtonText}>{7}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            key={8}
+            onPress={() => handleDigitPress('8')}
+            style={[
+              styles.digitButton,
+            ]}
+          >
+            <Text style={styles.digitButtonText}>{8}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            key={9}
+            onPress={() => handleDigitPress('9')}
+            style={[
+              styles.digitButton,
+            ]}
+          >
+            <Text style={styles.digitButtonText}>{9}</Text>
+          </TouchableOpacity>
+        </ThemedView>
+
+        <ThemedView style={styles.lastDigitsNumber}>
+          <TouchableOpacity
+            key={0}
+            onPress={() => handleDigitPress('0')}
+            style={[
+              styles.digitButton,
+            ]}
+          >
+            <Text style={styles.digitButtonText}>{0}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleErasePress}
+            style={[styles.digitButton]}
+          >
+            <Text style={styles.eraseButtonText}>
+              {'<'}
+            </Text>
+          </TouchableOpacity>
+        </ThemedView>
+
       </View>
       {
         isResultOpen &&
@@ -124,33 +232,27 @@ const styles = StyleSheet.create({
     color: green,
   },
   digitButtonsContainer: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
-    gridRemplateRows: 'repeat(4, 1fr)',
-    gridColumnGap: 0,
-    gridRowGap: 0,
-
+    display: 'flex',
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
+    width: 210,
   },
   digitButton: {
     width: 60,
     height: 60,
     borderRadius: 30,
     backgroundColor: 'transparent',
-    border: '2px solid darkgreen',
+    borderWidth: 2,
+    borderColor: 'darkgreen',
     alignItems: 'center',
     justifyContent: 'center',
     margin: 5,
   },
 
   lastDigitsNumber: {
-    gridArea: '4 / 2 / 5 / 3',
-  },
-  eraseButton: {
-    gridArea: '4 / 4 / 5 / 3',
-    backgroundColor: 'transparent',
+    width: 210,
+    paddingLeft: 70,
+    flexDirection: 'row',
+    alignSelf: 'flex-start',
   },
   digitButtonText: {
     fontSize: 20,
