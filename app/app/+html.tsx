@@ -34,6 +34,6 @@ body {
 }
 @media (prefers-color-scheme: dark) {
   body {
-    background-color: #000;
+    background-color: rgba(255, 218, 62, 1);
   }
 }`;

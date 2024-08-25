@@ -8,10 +8,6 @@ import { ThemedView } from '@/components/ThemedView';
 import PasswordInput from '@/components/PasswordInput';
 
 export default function TabLayout() {
-  const handlePasswordEntered = (password: string) => {
-    console.log('Password entered:', password);
-  };
-
   return (
     <View style={{ height: '100%' }}>
       <MainView>
@@ -20,9 +16,9 @@ export default function TabLayout() {
           <HelloWave />
         </ThemedView>
         <ThemedView style={styles.descContainer}>
-          <ThemedText type='subtitle'>Попробуйте отгадать код от сейфа и получит приз!</ThemedText>
+          <ThemedText type='subtitle'>Попробуйте отгадать код от сейфа и получите приз</ThemedText>
         </ThemedView>
-        <PasswordInput onPasswordEntered={handlePasswordEntered} />
+        <PasswordInput/>
       </MainView>
     </View>
   );
@@ -34,11 +30,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     margin: 'auto',
     gap: 8,
-    marginBottom: 64,
+    marginBottom: 54,
     marginTop: 32,
   },
   descContainer: {
     margin: 'auto',
-    gap: 32,
+    marginBottom: 48,
   },
 });

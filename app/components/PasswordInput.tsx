@@ -5,27 +5,31 @@ import { ThemedText } from './ThemedText';
 const passwordCompareList = [
   '1234',
   '0000',
-]
+];
 
-const PasswordInput = ({ onPasswordEntered }: { onPasswordEntered: (passwrod: string) => void }) => {
+const green = 'darkgreen';
+
+const PasswordInput = () => {
   const [password, setPassword] = useState('');
   const [isResultOpen, setIsResultOpen] = useState(false);
+  const [resultType, setResultType] = useState<boolean | null>(null);
 
   useEffect(() => {
-    if (password.length === 4 && passwordCompareList.includes(password)) { // show result
+    if (password.length === 4) { // show result
       setIsResultOpen(true);
+      setResultType(
+        passwordCompareList.includes(password)
+      );
     }
     if (password.length === 3) { // reset after erasing
       setIsResultOpen(false);
+      setResultType(null);
     }
   }, [password])
 
   const handleDigitPress = (digit: string) => {
     if (password.length < 4) {
       setPassword(password + digit);
-    }
-    if (password.length === 4) {
-      onPasswordEntered(password);
     }
   };
 
@@ -92,9 +96,17 @@ const PasswordInput = ({ onPasswordEntered }: { onPasswordEntered: (passwrod: st
         </TouchableOpacity>
       </View>
       {
-        isResultOpen && <ThemedText type='defaultSemiBold'>
-          Result!
-        </ThemedText>
+        isResultOpen &&
+          <ThemedText
+            type='defaultSemiBold'
+            style={resultType ? styles.sucessResult : styles.failureResult}
+          >
+            {
+              resultType
+                ? 'Поздравляем, вы вскрыли сейф и заслужили приз!!! \u{1F44F} \u{1F38A}'
+                : 'К сожалению пароль не верный, попробуйте ввести снова'
+            }
+          </ThemedText>
       }
     </View>
   );
@@ -109,7 +121,7 @@ const styles = StyleSheet.create({
   maskedPasswordText: {
     fontSize: 24,
     marginBottom: 20,
-    color: 'white',
+    color: green,
   },
   digitButtonsContainer: {
     display: 'grid',
@@ -127,7 +139,7 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: 30,
     backgroundColor: 'transparent',
-    border: '1px solid white',
+    border: '2px solid darkgreen',
     alignItems: 'center',
     justifyContent: 'center',
     margin: 5,
@@ -138,15 +150,16 @@ const styles = StyleSheet.create({
   },
   eraseButton: {
     gridArea: '4 / 4 / 5 / 3',
-    backgroundColor: 'white',
+    backgroundColor: 'transparent',
   },
   digitButtonText: {
     fontSize: 20,
-    color: 'white',
+    color: green,
   },
   eraseButtonText: {
     fontSize: 20,
-    color: 'black',
+    fontWeight: 500,
+    color: green,
   },
 
   numberContainer: {
@@ -156,8 +169,8 @@ const styles = StyleSheet.create({
   numberSquare: {
     width: 40,
     height: 40,
-    borderWidth: 1,
-    borderColor: 'white',
+    borderWidth: 2,
+    borderColor: 'darkgreen',
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 5,
@@ -165,8 +178,18 @@ const styles = StyleSheet.create({
   numberText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: 'white',
+    color: green,
   },
+  sucessResult: {
+    color: green,
+    fontSize: 20,
+    marginTop: 36,
+  },
+  failureResult: {
+    color: 'black',
+    fontSize: 20,
+    marginTop: 36,
+  }
 });
 
 export default PasswordInput;
