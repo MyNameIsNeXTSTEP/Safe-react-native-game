@@ -16,7 +16,7 @@ const storePassword = async (value: string) => {
 
 const getPassword = async (value: string) => {
   try {
-    return !!(await AsyncStorage.getItem(value))?.length;
+    return await AsyncStorage.getItem(value);
   } catch (e) {
     console.log(e);
   }
@@ -39,7 +39,8 @@ const PasswordInput = () => {
     setTimeout(() => {
       setPassword('');
       setIsResultOpen(false);
-    }, 7000);
+      setPasswordWasUsed(false);
+    }, 6000);
   };
 
   useEffect(() => {
@@ -47,18 +48,17 @@ const PasswordInput = () => {
       if (password.length === 4) {
         setIsLoading(true);
         var passwordIsValid = passwordCompareList.includes(password);
-        setPasswordWasUsed(
-          await getPassword(password)
+        var passwordFromStore = await getPassword(password);
+        var passwordFromStoreWasUsed = passwordFromStore?.includes(passwordFromStore);
+        setResultType(
+          !passwordFromStoreWasUsed && passwordIsValid
         );
+        setPasswordWasUsed(passwordFromStoreWasUsed);
         
+        showResult();
         if (passwordIsValid) {
           storePassword(password);
         }
-        
-        setResultType(
-          !passwordWasUsed && passwordIsValid
-        );
-        showResult();
       }
       if (password.length === 3) {
         setIsResultOpen(false);
