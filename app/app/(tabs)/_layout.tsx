@@ -30,11 +30,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     margin: 'auto',
     gap: 8,
-    marginBottom: 54,
-    marginTop: 32,
+    marginBottom: 36,
+    marginTop: 24,
   },
   descContainer: {
     margin: 'auto',
-    marginBottom: 48,
+    marginBottom: 24,
   },
 });

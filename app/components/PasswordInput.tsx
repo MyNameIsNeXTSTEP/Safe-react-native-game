@@ -1,11 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
 import { passwordCompareList } from '@/constants';
 import { green } from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Typewriter from './TypeWriter';
 
 const storePassword = async (value: string) => {
   try {
@@ -23,39 +22,39 @@ const getPassword = async (value: string) => {
   }
 };
 
-const clearAll = async () => {
-  try {
-    await AsyncStorage.clear();
-  } catch(e) {
-    console.log(e);
-  }
-}
-
 const PasswordInput = () => {
   const [password, setPassword] = useState('');
   const [isResultOpen, setIsResultOpen] = useState(false);
   const [resultType, setResultType] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isMoreText, setIsMoreText] = useState(false);
+  const [passwordWasUsed, setPasswordWasUsed] = useState<boolean | undefined>(false);
 
-  const showResult = useCallback(() => {
-    setIsLoading(true);
+  const showResult = () => {
     setTimeout(() => {
       setIsLoading(false);
-    }, 3300);
-    setTimeout(() => setPassword(''), 5000);
-  }, [password]);
+    }, 3700);
+    setTimeout(() => setIsMoreText(true), 1000);
+    setIsResultOpen(true);
+    setTimeout(() => {
+      setPassword('');
+      setIsResultOpen(false);
+    }, 7000);
+  };
 
   useEffect(() => {
     ( async () => {
       if (password.length === 4) {
-        setIsResultOpen(true);
+        setIsLoading(true);
         var passwordIsValid = passwordCompareList.includes(password);
-        var passwordWasUsed = await getPassword(password);
+        setPasswordWasUsed(
+          await getPassword(password)
+        );
         
         if (passwordIsValid) {
           storePassword(password);
         }
-
+        
         setResultType(
           !passwordWasUsed && passwordIsValid
         );
@@ -96,7 +95,7 @@ const PasswordInput = () => {
   return (
     <View style={styles.container}>
       <View style={styles.numberContainer}>{renderNumberSquares()}</View>
-      <View>
+      <View style={styles.safe}>
         <ThemedView style={styles.digitButtonsContainer}>
           <TouchableOpacity
             key={1}
@@ -215,16 +214,26 @@ const PasswordInput = () => {
 
       </View>
       { isLoading
-        ? <Typewriter text='Проводим нереальные космические расчёты...' delay={50}/>
-        : isResultOpen &&
-          <ThemedText
+        ? <>
+            <ThemedText style={styles.loader} type={'defaultSemiBold'}>
+              Проводим космические вычисления...
+            </ThemedText>
+            <ThemedText style={styles.moreText} type={'defaultSemiBold'}>
+              {isMoreText && '\nИ ещё минуточку...'}
+            </ThemedText>
+          </>
+        : <ThemedText
             type='defaultSemiBold'
             style={resultType ? styles.sucessResult : styles.failureResult}
           >
             {
-              resultType
-                ? 'Поздравляем, вы вскрыли сейф и заслужили приз!!! \u{1F44F} \u{1F38A}'
-                : 'К сожалению пароль не верный или уже использован, попробуйте ввести снова'
+              isResultOpen
+              ? resultType
+                  ? 'Ура, вы вскрыли сейф и заслужили приз, поздравляем !!! \u{1F44F} \u{1F38A}'
+                  : passwordWasUsed
+                    ? 'Этот пароль уже был использован, у вас есть ещё попытка'
+                    : 'К сожалению, данный пароль не подходит \u{1F641}'
+              : null
             }
           </ThemedText>   
       }
@@ -233,6 +242,13 @@ const PasswordInput = () => {
 };
     
 const styles = StyleSheet.create({
+  safe: {
+    padding: 12,
+    borderRadius: 15,
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: 'darkgreen',
+  },
   container: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -283,6 +299,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderWidth: 2,
+    borderRadius: 30,
     borderColor: 'darkgreen',
     justifyContent: 'center',
     alignItems: 'center',
@@ -303,6 +320,13 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginTop: 36,
   },
+  loader: {
+    marginTop: 36,
+    color: green,
+  },
+  moreText: {
+    color: green,
+  }
 });
 
 export default PasswordInput;
