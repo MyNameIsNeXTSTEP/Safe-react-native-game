@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
@@ -29,8 +29,11 @@ const PasswordInput = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isMoreText, setIsMoreText] = useState(false);
   const [passwordWasUsed, setPasswordWasUsed] = useState<boolean | undefined>(false);
+  const [isSuperPrize, setIsSuperPrize] = useState(false);
+  const [attempt, setAttempt] = useState(3);
+  var attemptsText = `у вас есть ещё ${attempt} ${attempt === 1 ? 'попытка' : 'попытки'}`;
 
-  const showResult = () => {
+  const showResult = useCallback(() => {
     setTimeout(() => {
       setIsLoading(false);
     }, 3700);
@@ -40,13 +43,33 @@ const PasswordInput = () => {
       setPassword('');
       setIsResultOpen(false);
       setPasswordWasUsed(false);
+      setIsSuperPrize(false);
     }, 6000);
-  };
+  }, [password]);
+
+  const generateAttemptsText = useCallback(() => {
+    var text = '';
+    if (attempt === 0) {
+      return 'Лимит попыток исчерпан, но мы всё ещё будем ждать вас снова :)';
+    } else {
+      if (passwordWasUsed) {
+        text = 'Этот пароль уже был использован ' + attemptsText;
+      } else {
+        text = 'К сожалению, данный пароль не подходит \u{1F641} ' + attemptsText;
+      }
+    }
+    return text;
+  }, [attempt]);
+
+  useEffect(() => {
+    attempt < 0 && setAttempt(2);
+  }, [attempt]);
 
   useEffect(() => {
     ( async () => {
       if (password.length === 4) {
         setIsLoading(true);
+        setIsSuperPrize(password === '0567');
         var passwordIsValid = passwordCompareList.includes(password);
         var passwordFromStore = await getPassword(password);
         var passwordFromStoreWasUsed = passwordFromStore?.includes(passwordFromStore);
@@ -56,6 +79,7 @@ const PasswordInput = () => {
         setPasswordWasUsed(passwordFromStoreWasUsed);
         
         showResult();
+        setAttempt(attempt => attempt - 1);
         if (passwordIsValid) {
           storePassword(password);
         }
@@ -229,10 +253,10 @@ const PasswordInput = () => {
             {
               isResultOpen
               ? resultType
-                  ? 'Ура, вы вскрыли сейф и заслужили приз, поздравляем !!! \u{1F44F} \u{1F38A}'
-                  : passwordWasUsed
-                    ? 'Этот пароль уже был использован, у вас есть ещё попытка'
-                    : 'К сожалению, данный пароль не подходит \u{1F641}'
+                  ? isSuperPrize
+                    ? 'Поздравляем, вы единственный кому удалось вскрыть сейф и заслужить СУПЕРПРИЗ !!! \u{1F44F} \u{1F38A}'
+                    : 'Ура, вы открыли приз, поздравляем ! \u{1F44F} \u{1F38A}'
+                  : generateAttemptsText()
               : null
             }
           </ThemedText>   
