@@ -22,6 +22,12 @@ const getPassword = async (value: string) => {
   }
 };
 
+/**
+ * @Note
+ * Bad bad practice to use so much state hooks in one big component!
+ * Leaved as is here for the sake of developing speed.
+ * Better to decompose to several isolated pure components.
+ */
 const PasswordInput = () => {
   const [password, setPassword] = useState('');
   const [isResultOpen, setIsResultOpen] = useState(false);
