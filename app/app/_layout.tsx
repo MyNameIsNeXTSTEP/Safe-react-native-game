@@ -13,7 +13,7 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    TimesNewRoman: require('../assets/fonts/times_new_roman.ttf'),
   });
 
   useEffect(() => {

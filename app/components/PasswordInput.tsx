@@ -36,8 +36,6 @@ const PasswordInput = () => {
   const [isMoreText, setIsMoreText] = useState(false);
   const [passwordWasUsed, setPasswordWasUsed] = useState<boolean | undefined>(false);
   const [isSuperPrize, setIsSuperPrize] = useState(false);
-  const [attempt, setAttempt] = useState(3);
-  var attemptsText = `у вас есть ещё ${attempt} ${attempt === 1 ? 'попытка' : 'попытки'}`;
 
   const showResult = useCallback(() => {
     setTimeout(() => {
@@ -55,21 +53,13 @@ const PasswordInput = () => {
 
   const generateAttemptsText = useCallback(() => {
     var text = '';
-    if (attempt === 0) {
-      return 'Лимит попыток исчерпан, но мы всё ещё будем ждать вас снова :)';
-    } else {
       if (passwordWasUsed) {
-        text = 'Этот пароль уже был использован ' + attemptsText;
+        text = 'Этот пароль уже был использован';
       } else {
-        text = 'К сожалению, данный пароль не подходит \u{1F641} ' + attemptsText;
+        text = 'К сожалению, данный пароль не подходит \u{1F641}';
       }
-    }
     return text;
-  }, [attempt]);
-
-  useEffect(() => {
-    attempt < 0 && setAttempt(2);
-  }, [attempt]);
+  }, [passwordWasUsed]);
 
   useEffect(() => {
     ( async () => {
@@ -85,7 +75,6 @@ const PasswordInput = () => {
         setPasswordWasUsed(passwordFromStoreWasUsed);
         
         showResult();
-        setAttempt(attempt => attempt - 1);
         if (passwordIsValid) {
           storePassword(password);
         }
@@ -96,7 +85,6 @@ const PasswordInput = () => {
       }
     })();
   }, [password]);
-
 
   const handleDigitPress = (digit: string) => {
     if (password.length < 4) {
@@ -260,7 +248,7 @@ const PasswordInput = () => {
               isResultOpen
               ? resultType
                   ? isSuperPrize
-                    ? 'Поздравляем, вы единственный кому удалось вскрыть сейф и заслужить СУПЕРПРИЗ !!! \u{1F44F} \u{1F38A}'
+                    ? 'Поздравляем, вам удалось вскрыть сейф и заслужить СУПЕРПРИЗ !!! \u{1F44F} \u{1F38A}'
                     : 'Ура, вы открыли приз, поздравляем ! \u{1F44F} \u{1F38A}'
                   : generateAttemptsText()
               : null

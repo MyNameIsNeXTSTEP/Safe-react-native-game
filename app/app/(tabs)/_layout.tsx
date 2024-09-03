@@ -16,7 +16,7 @@ export default function TabLayout() {
           <HelloWave />
         </ThemedView>
         <ThemedView style={styles.descContainer}>
-          <ThemedText type='subtitle'>Попробуйте отгадать код от сейфа и получите приз, у вас есть 3 попытки</ThemedText>
+          <ThemedText type='subtitle'>Попробуйте отгадать код от сейфа и получите приз!</ThemedText>
         </ThemedView>
         <PasswordInput/>
       </MainView>
