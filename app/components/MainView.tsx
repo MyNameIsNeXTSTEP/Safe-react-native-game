@@ -20,7 +20,7 @@ export default function MainView({
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 100,
+    paddingTop: 12,
     zIndex: 1,
     overflow: 'scroll',
     flex: 1,
