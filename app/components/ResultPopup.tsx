@@ -17,7 +17,7 @@ const ResultPopup = ({
 
   useEffect(() => {
     setLoading(true);
-   setTimeout(() => setLoading(false), 2500);
+   setTimeout(() => setLoading(false), 2000);
   }, [isOpen]);
 
   return <>

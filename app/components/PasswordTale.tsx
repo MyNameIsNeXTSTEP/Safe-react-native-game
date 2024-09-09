@@ -1,5 +1,5 @@
-import React, { useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, TouchableHighlight } from 'react-native';
 import { ThemedView } from './ThemedView';
 import { passwordCompareList } from '@/constants';
 import { green } from '@/constants/Colors';
@@ -26,28 +26,38 @@ const getPassword = async (value: string) => {
   }
 };
 
-let usedPasswords: string[] = [];
-
 const PasswordInput = ({
   setIsPopupOpen,
   setIsSuccess,
 }: IProps) => {
+  const [usedPasswordsList, setUsedPasswordKeys] = useState<string[]>([]);
   const [password, setPassword] = useState<string | null | undefined>(null);
 
-  const checkIfPasswordWasUsed = useCallback((pswd: string) => {
-    const wasUsed = usedPasswords.includes(pswd);
-    if (!wasUsed) usedPasswords.push(pswd);
-    return wasUsed;
+  useEffect(() => {
+    (async () => {
+      const used = await AsyncStorage.getAllKeys();
+      setUsedPasswordKeys([...used]);
+    })();
   }, [password]);
 
-  const handlePasswordPress = (pswd: string) => {
+  const checkIfPasswordWasUsed = async (pswd: string) => {
+    const wasUsed = !!(await getPassword(pswd))?.length;
+    console.log(wasUsed)
+    return wasUsed;
+  };
+
+  const handlePasswordPress = async (pswd?: string) => {
+    if (!pswd) return;
     setPassword(pswd);
-    checkIfPasswordWasUsed(pswd);
+    const wasUsed = await checkIfPasswordWasUsed(pswd);
+    if (!wasUsed) await storePassword(pswd);
     setIsPopupOpen(true);
     setIsSuccess(
       pswd === '8336'
     );
   };
+
+  console.log(usedPasswordsList)
 
   return (
     <View style={styles.container}>
@@ -57,13 +67,13 @@ const PasswordInput = ({
             passwordCompareList.map(pswd => {
               return <TouchableOpacity
                 key={pswd}
-                onPress={e => handlePasswordPress(pswd)}
-                style={[
-                    usedPasswords.includes(pswd)
-                      ? { ...styles.digitButton, ...styles.usedButton }
-                      : styles.digitButton
-                ]}
-                disabled={usedPasswords.includes(pswd)}
+                // disabled={checkIfPasswordWasUsed(pswd)}
+                style={
+                  usedPasswordsList.includes(pswd)
+                    ? { ...styles.digitButton, ...styles.usedButton }
+                    : styles.digitButton
+                }
+                onPress={(e) => handlePasswordPress(pswd)}
               >
                 <Text style={styles.digitButtonText}>{pswd}</Text>
               </TouchableOpacity>
