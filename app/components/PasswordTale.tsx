@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TouchableHighlight } from 'react-native';
 import { ThemedView } from './ThemedView';
 import { passwordCompareList } from '@/constants';
@@ -34,30 +34,29 @@ const PasswordInput = ({
   const [password, setPassword] = useState<string | null | undefined>(null);
 
   useEffect(() => {
-    (async () => {
-      const used = await AsyncStorage.getAllKeys();
-      setUsedPasswordKeys([...used]);
-    })();
+    AsyncStorage.getAllKeys().then(res => setUsedPasswordKeys([...res]));
   }, [password]);
 
   const checkIfPasswordWasUsed = async (pswd: string) => {
     const wasUsed = !!(await getPassword(pswd))?.length;
-    console.log(wasUsed)
     return wasUsed;
   };
 
-  const handlePasswordPress = async (pswd?: string) => {
+  const handlePasswordPress = (pswd?: string) => {
     if (!pswd) return;
     setPassword(pswd);
-    const wasUsed = await checkIfPasswordWasUsed(pswd);
-    if (!wasUsed) await storePassword(pswd);
-    setIsPopupOpen(true);
+    checkIfPasswordWasUsed(pswd).then(async res => {
+      if (!res) await storePassword(pswd);
+    });
+
+    setTimeout(() => {
+      setIsPopupOpen(true);
+    }, 1000);
+
     setIsSuccess(
       pswd === '8336'
     );
   };
-
-  console.log(usedPasswordsList)
 
   return (
     <View style={styles.container}>
@@ -67,7 +66,7 @@ const PasswordInput = ({
             passwordCompareList.map(pswd => {
               return <TouchableOpacity
                 key={pswd}
-                // disabled={checkIfPasswordWasUsed(pswd)}
+                disabled={usedPasswordsList.includes(pswd)}
                 style={
                   usedPasswordsList.includes(pswd)
                     ? { ...styles.digitButton, ...styles.usedButton }

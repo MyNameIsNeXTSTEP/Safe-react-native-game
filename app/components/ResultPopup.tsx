@@ -16,42 +16,47 @@ const ResultPopup = ({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
-   setTimeout(() => setLoading(false), 2000);
+    if (isOpen) {
+      setLoading(true);
+      setTimeout(() => setLoading(false), 2000);
+    }
   }, [isOpen]);
 
-  return <>
+  return <div>
     {
       isOpen
         ?
         <View style={styles.overlay}>
-
-          {loading
-            ? <p>...</p>
-            : <ThemedView style={isSuccess
-              ? styles.container
-              : { ...styles.container, ...styles.containerFail }
-            }>
-              <p style={{ fontFamily: 'times_new_roman' }}>
-                {
-                  isSuccess
+          <ThemedView
+            style={
+              loading
+                ? { ...styles.container, ...styles.containerLoader }
+                : isSuccess
+                  ? styles.container
+                  : { ...styles.container, ...styles.containerFail }
+            }
+          >
+            <p style={{ fontFamily: 'times_new_roman' }}>
+              {
+                loading
+                  ? 'Проверяем...'
+                  : isSuccess
                     ? 'Unlocked ✅'
                     : 'Пароль не верный'
-                }
-              </p>
-              <div
-                className='exit-btn'
-                style={styles.exit}
-                onClick={() => setIsPopupOpen(false)}
-              >
-                <p>❌</p>
-              </div>
-            </ThemedView>
-          }
+              }
+            </p>
+            <div
+              className='exit-btn'
+              style={styles.exit}
+              onClick={() => setIsPopupOpen(false)}
+            >
+              <p>❌</p>
+            </div>
+          </ThemedView>
         </View>
         : null
     }
-  </>;
+  </div>;
 };
 
 const styles = StyleSheet.create({
@@ -82,12 +87,8 @@ const styles = StyleSheet.create({
   containerFail: {
     backgroundColor: 'red',
   },
-  loader: {
-    position: 'relative',
-    alignSelf: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: 'auto',
+  containerLoader: {
+    backgroundColor: 'orange',
   },
   exit: {
     position: 'absolute',
@@ -98,11 +99,6 @@ const styles = StyleSheet.create({
     height: 'auto',
     padding: 4,
     marginRight: 12,
-    fontSize: 13,
-
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: 'black',
   },
 });
 
