@@ -1,4 +1,4 @@
-import { View, StyleSheet, ActivityIndicator } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { ThemedView } from "./ThemedView";
 import { useEffect, useState } from "react";
 
@@ -27,12 +27,12 @@ const ResultPopup = ({
         <View style={styles.overlay}>
 
           {loading
-            ? <ActivityIndicator size='large' color='#00ff00' style={styles.loader}/>
+            ? <p>...</p>
             : <ThemedView style={isSuccess
               ? styles.container
               : { ...styles.container, ...styles.containerFail }
             }>
-              <p>
+              <p style={{ fontFamily: 'times_new_roman' }}>
                 {
                   isSuccess
                     ? 'Unlocked ✅'

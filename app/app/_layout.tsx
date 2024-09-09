@@ -1,7 +1,6 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { View, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
@@ -21,7 +20,7 @@ export default function RootLayout() {
   const [isSuccess, setIsSuccess] = useState(false);
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
-    TimesNewRoman: require('../assets/fonts/times_new_roman.ttf'),
+    'times_new_roman': require('../assets/fonts/times_new_roman.ttf'),
   });
 
   useEffect(() => {
@@ -62,5 +61,6 @@ const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 24,
     marginTop: 12,
+    fontFamily: 'times_new_roman',
   },
 });

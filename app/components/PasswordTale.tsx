@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { ThemedView } from './ThemedView';
 import { passwordCompareList } from '@/constants';
@@ -59,9 +59,7 @@ const PasswordInput = ({
                 key={pswd}
                 onPress={e => handlePasswordPress(pswd)}
                 style={[
-                  password === '8336' && pswd === password
-                    ? { ...styles.digitButton, ...styles.priseButton }
-                    : usedPasswords.includes(pswd)
+                    usedPasswords.includes(pswd)
                       ? { ...styles.digitButton, ...styles.usedButton }
                       : styles.digitButton
                 ]}
@@ -109,12 +107,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     margin: 5,
+    fontFamily: 'times_new_roman',
   },
   usedButton: {
     backgroundColor: 'gray',
-  },
-  priseButton: {
-    backgroundColor: 'green',
   },
   digitButtonText: {
     fontSize: 20,
