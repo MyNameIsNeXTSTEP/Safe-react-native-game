@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, TouchableHighlight } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { ThemedView } from './ThemedView';
 import { passwordCompareList } from '@/constants';
 import { green } from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-interface IProps {
+interface IPropsPopup {
+  isOpen: boolean,
+  isSuccess?: boolean,
   setIsPopupOpen: React.Dispatch<React.SetStateAction<boolean>>,
-  setIsSuccess: React.Dispatch<React.SetStateAction<boolean>>,
 }
 
 const storePassword = async (value: string) => {
@@ -26,16 +27,115 @@ const getPassword = async (value: string) => {
   }
 };
 
-const PasswordInput = ({
+const ResultPopup = ({
+  isOpen = false,
+  isSuccess,
   setIsPopupOpen,
-  setIsSuccess,
-}: IProps) => {
-  const [usedPasswordsList, setUsedPasswordKeys] = useState<string[]>([]);
-  const [password, setPassword] = useState<string | null | undefined>(null);
+}: IPropsPopup) => {
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    AsyncStorage.getAllKeys().then(res => setUsedPasswordKeys([...res]));
-  }, [password]);
+    if (isOpen) {
+      setLoading(true);
+      setTimeout(() => setLoading(false), 2000);
+    }
+  }, [isOpen]);
+
+  return <div>
+    {
+      isOpen
+        ?
+        <View style={stylesPopup.overlay}>
+          <ThemedView
+            style={
+              loading
+                ? { ...stylesPopup.container, ...stylesPopup.containerLoader }
+                : isSuccess
+                  ? stylesPopup.container
+                  : { ...stylesPopup.container, ...stylesPopup.containerFail }
+            }
+          >
+            <p style={{ fontFamily: 'times_new_roman' }}>
+              {
+                loading
+                  ? 'Проверяем...'
+                  : isSuccess
+                    ? 'Unlocked ✅'
+                    : 'Пароль не верный'
+              }
+            </p>
+            {
+              !loading && <div
+                className='exit-btn'
+                style={stylesPopup.exit}
+                onClick={() => setIsPopupOpen(false)}
+              >
+                <p>❌</p>
+              </div>
+            }
+          </ThemedView>
+        </View>
+        : null
+    }
+  </div>;
+};
+
+const usePasswordState = (initialPasswords: string[] = []) => {
+  const [usedPasswords, setUsedPasswords] = useState(initialPasswords);
+  const updateUsedPasswords = useCallback((newPassword: string) => {
+    setUsedPasswords([...usedPasswords, newPassword]);
+  }, [usedPasswords]);
+  return [usedPasswords, updateUsedPasswords];
+};
+
+const mapList = new Map();
+
+const PasswordInput = () => {
+  const [password, setPassword] = useState<string | null | undefined>(null);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [allList, setAllList] = useState(mapList)
+  const { 0: usedPasswords, 1: updateUsedPasswords } = usePasswordState();
+
+  passwordCompareList.map(pswd => {
+    mapList.set(
+      pswd,
+      () => <TouchableOpacity
+        key={pswd}
+        // @ts-ignore
+        disabled={usedPasswords.includes(pswd)}
+        style={styles.digitButton}
+        onPress={(e) => handlePasswordPress(pswd)}
+      >
+        <Text style={styles.digitButtonText}>{pswd}</Text>
+      </TouchableOpacity>
+    )
+  });
+
+  useEffect(() => {
+    const updateStyles = async () => {
+      const keys = await AsyncStorage.getAllKeys();
+      const buttonTypeStyle = isSuccess ? styles.successButton : styles.usedButton;
+      setAllList(prevMap => {
+        return prevMap.set(
+          password,
+          () => <TouchableOpacity
+            key={password}
+            // @ts-ignore
+            disabled={usedPasswords.includes(password)}
+            style={
+              { ...styles.digitButton, ...buttonTypeStyle }
+            }
+            // @ts-ignore
+            onPress={(e) => handlePasswordPress(password)}
+          >
+            <Text style={styles.digitButtonText}>{password}</Text>
+          </TouchableOpacity>
+        );
+      })
+    };
+    updateStyles();
+  }, [usedPasswords, password]);
 
   const checkIfPasswordWasUsed = async (pswd: string) => {
     const wasUsed = !!(await getPassword(pswd))?.length;
@@ -45,13 +145,17 @@ const PasswordInput = ({
   const handlePasswordPress = (pswd?: string) => {
     if (!pswd) return;
     setPassword(pswd);
+
     checkIfPasswordWasUsed(pswd).then(async res => {
       if (!res) await storePassword(pswd);
     });
 
+    // @ts-ignore
+    updateUsedPasswords(pswd);
+
     setTimeout(() => {
       setIsPopupOpen(true);
-    }, 1000);
+    }, 1000)
 
     setIsSuccess(
       pswd === '8336'
@@ -63,23 +167,15 @@ const PasswordInput = ({
       <View style={styles.safe}>
         <ThemedView style={styles.digitButtonsContainer}>
           {
-            passwordCompareList.map(pswd => {
-              return <TouchableOpacity
-                key={pswd}
-                disabled={usedPasswordsList.includes(pswd)}
-                style={
-                  usedPasswordsList.includes(pswd)
-                    ? { ...styles.digitButton, ...styles.usedButton }
-                    : styles.digitButton
-                }
-                onPress={(e) => handlePasswordPress(pswd)}
-              >
-                <Text style={styles.digitButtonText}>{pswd}</Text>
-              </TouchableOpacity>
-            })
+            passwordCompareList.map(pswd => allList.get(pswd)())
           }
         </ThemedView>
       </View>
+      <ResultPopup
+        isOpen={isPopupOpen}
+        isSuccess={isSuccess}
+        setIsPopupOpen={setIsPopupOpen}
+      />
     </View>
   );
 };
@@ -121,9 +217,55 @@ const styles = StyleSheet.create({
   usedButton: {
     backgroundColor: 'gray',
   },
+  successButton: {
+    backgroundColor: 'green',
+  },
   digitButtonText: {
     fontSize: 20,
     color: green,
+  },
+});
+
+const stylesPopup = StyleSheet.create({
+  overlay: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    zIndex: 1000,
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  container: {
+    width: 300,
+    height: 200,
+    borderRadius: 25,
+    backgroundColor: 'green',
+    position: 'relative',
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: 'auto',
+    color: 'white',
+    fontSize: 20,
+  },
+  containerFail: {
+    backgroundColor: 'red',
+  },
+  containerLoader: {
+    backgroundColor: 'orange',
+  },
+  exit: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    cursor: 'pointer',
+    width: 'auto',
+    height: 'auto',
+    padding: 4,
+    marginRight: 12,
   },
 });
 
