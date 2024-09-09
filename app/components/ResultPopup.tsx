@@ -1,29 +1,53 @@
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, ActivityIndicator } from "react-native";
 import { ThemedView } from "./ThemedView";
+import { useEffect, useState } from "react";
 
 interface IProps {
   isOpen: boolean,
   isSuccess?: boolean,
+  setIsPopupOpen: React.Dispatch<React.SetStateAction<boolean>>,
 }
 
 const ResultPopup = ({
-    isOpen = false,
-    isSuccess,
+  isOpen = false,
+  isSuccess,
+  setIsPopupOpen,
 }: IProps) => {
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+   setTimeout(() => setLoading(false), 2500);
+  }, [isOpen]);
+
   return <>
     {
       isOpen
         ?
         <View style={styles.overlay}>
-          <ThemedView style={styles.container}>
-            <p>
-              {
-                isSuccess
-                  ? 'Unlocked'
-                  : 'Пароль не верный'
-              }
-            </p>
-          </ThemedView>
+
+          {loading
+            ? <ActivityIndicator size='large' color='#00ff00' style={styles.loader}/>
+            : <ThemedView style={isSuccess
+              ? styles.container
+              : { ...styles.container, ...styles.containerFail }
+            }>
+              <p>
+                {
+                  isSuccess
+                    ? 'Unlocked ✅'
+                    : 'Пароль не верный'
+                }
+              </p>
+              <div
+                className='exit-btn'
+                style={styles.exit}
+                onClick={() => setIsPopupOpen(false)}
+              >
+                <p>❌</p>
+              </div>
+            </ThemedView>
+          }
         </View>
         : null
     }
@@ -44,14 +68,41 @@ const styles = StyleSheet.create({
   },
   container: {
     width: 300,
-    height: 300,
+    height: 200,
     borderRadius: 25,
-    backgroundColor: 'white',
+    backgroundColor: 'green',
     position: 'relative',
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
     margin: 'auto',
+    color: 'white',
+    fontSize: 20,
+  },
+  containerFail: {
+    backgroundColor: 'red',
+  },
+  loader: {
+    position: 'relative',
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: 'auto',
+  },
+  exit: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    cursor: 'pointer',
+    width: 'auto',
+    height: 'auto',
+    padding: 4,
+    marginRight: 12,
+    fontSize: 13,
+
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: 'black',
   },
 });
 

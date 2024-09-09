@@ -1,14 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
 import { passwordCompareList } from '@/constants';
 import { green } from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import ResultPopup from './ResultPopup';
 
-interface IProps { 
+interface IProps {
   setIsPopupOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  setIsSuccess: React.Dispatch<React.SetStateAction<boolean>>,
 }
 
 const storePassword = async (value: string) => {
@@ -27,38 +26,27 @@ const getPassword = async (value: string) => {
   }
 };
 
-/**
-* @Note
-* Bad bad practice to use so much state hooks in one big component!
-* Leaved as is here for the sake of developing speed.
-* Better to decompose to several isolated pure components.
-*/
-const PasswordInput = ({ setIsPopupOpen }: IProps) => {
-  const [password, setPassword] = useState('');
-  const [passwordWasUsed, setPasswordWasUsed] = useState<boolean | undefined>(false);
+let usedPasswords: string[] = [];
 
-  const shadowUsedPassword = useCallback(() => {
+const PasswordInput = ({
+  setIsPopupOpen,
+  setIsSuccess,
+}: IProps) => {
+  const [password, setPassword] = useState<string | null | undefined>(null);
 
-  }, [password]);
-
-  useEffect(() => {
-    ( async () => {
-      if (password.length === 4) {
-        var passwordFromStore = await getPassword(password);
-        passwordFromStore && setPasswordWasUsed(true);
-        shadowUsedPassword();
-        if (!passwordFromStore) {
-          storePassword(password);
-        }
-      }
-    })();
+  const checkIfPasswordWasUsed = useCallback((pswd: string) => {
+    const wasUsed = usedPasswords.includes(pswd);
+    if (!wasUsed) usedPasswords.push(pswd);
+    return wasUsed;
   }, [password]);
 
   const handlePasswordPress = (pswd: string) => {
     setPassword(pswd);
-    if (pswd === '8336') {
-      setIsPopupOpen(true);
-    }
+    checkIfPasswordWasUsed(pswd);
+    setIsPopupOpen(true);
+    setIsSuccess(
+      pswd === '8336'
+    );
   };
 
   return (
@@ -71,8 +59,13 @@ const PasswordInput = ({ setIsPopupOpen }: IProps) => {
                 key={pswd}
                 onPress={e => handlePasswordPress(pswd)}
                 style={[
-                  styles.digitButton,
+                  password === '8336' && pswd === password
+                    ? { ...styles.digitButton, ...styles.priseButton }
+                    : usedPasswords.includes(pswd)
+                      ? { ...styles.digitButton, ...styles.usedButton }
+                      : styles.digitButton
                 ]}
+                disabled={usedPasswords.includes(pswd)}
               >
                 <Text style={styles.digitButtonText}>{pswd}</Text>
               </TouchableOpacity>
@@ -116,6 +109,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     margin: 5,
+  },
+  usedButton: {
+    backgroundColor: 'gray',
+  },
+  priseButton: {
+    backgroundColor: 'green',
   },
   digitButtonText: {
     fontSize: 20,
