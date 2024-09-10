@@ -15,14 +15,14 @@ const ResultPopup = ({
 }: IProps) => {
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    let timeoutId: number;
-    if (isOpen) {
-      setLoading(true);
-      timeoutId = setTimeout(() => setLoading(false), 2000);
-    }
-    return () => clearTimeout(timeoutId);
-  }, [isOpen]);
+  // useEffect(() => {
+  //   let timeoutId: number;
+  //   if (isOpen) {
+  //     setLoading(true);
+  //     timeoutId = setTimeout(() => setLoading(false), 2000);
+  //   }
+  //   return () => clearTimeout(timeoutId);
+  // }, [isOpen]);
 
   return <div>
     {
