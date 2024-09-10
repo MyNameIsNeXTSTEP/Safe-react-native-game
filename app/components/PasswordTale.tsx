@@ -35,10 +35,12 @@ const ResultPopup = ({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    let timeoutId: number;
     if (isOpen) {
       setLoading(true);
-      setTimeout(() => setLoading(false), 2000);
+      timeoutId = setTimeout(() => setLoading(false), 2000);
     }
+    return () => clearTimeout(timeoutId);
   }, [isOpen]);
 
   return <div>
@@ -113,9 +115,8 @@ const PasswordInput = () => {
   });
 
   useEffect(() => {
+    const buttonTypeStyle = isSuccess ? styles.successButton : styles.usedButton;
     const updateStyles = async () => {
-      const keys = await AsyncStorage.getAllKeys();
-      const buttonTypeStyle = isSuccess ? styles.successButton : styles.usedButton;
       setAllList(prevMap => {
         return prevMap.set(
           password,
@@ -135,32 +136,37 @@ const PasswordInput = () => {
       })
     };
     updateStyles();
-  }, [usedPasswords, password]);
+  }, [usedPasswords, password, isSuccess]);
 
-  const checkIfPasswordWasUsed = async (pswd: string) => {
-    const wasUsed = !!(await getPassword(pswd))?.length;
-    return wasUsed;
-  };
+  const checkIfPasswordWasUsed = useCallback(async (pswd: string) => {
+    try {
+      const wasUsed = !!(await getPassword(pswd))?.length;
+      return wasUsed;
+    } catch (error) {
+      console.log(error);
+    }
+  }, [password]);
 
-  const handlePasswordPress = (pswd?: string) => {
+  const handlePasswordPress = useCallback((pswd?: string) => {
     if (!pswd) return;
     setPassword(pswd);
 
     checkIfPasswordWasUsed(pswd).then(async res => {
-      if (!res) await storePassword(pswd);
+      try {
+        if (!res) await storePassword(pswd);
+      } catch (error) {
+        console.log(error);
+      }
     });
 
     // @ts-ignore
     updateUsedPasswords(pswd);
-
-    setTimeout(() => {
-      setIsPopupOpen(true);
-    }, 1000)
+    setIsPopupOpen(true);
 
     setIsSuccess(
       pswd === '8336'
     );
-  };
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -229,9 +235,7 @@ const styles = StyleSheet.create({
 const stylesPopup = StyleSheet.create({
   overlay: {
     position: 'absolute',
-    width: '100%',
-    height: '100%',
-    zIndex: 1000,
+    zIndex: 10,
     top: 0,
     bottom: 0,
     left: 0,
