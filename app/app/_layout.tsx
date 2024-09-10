@@ -16,8 +16,6 @@ import ResultPopup from '@/components/ResultPopup';
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     'times_new_roman': require('../assets/fonts/times_new_roman.ttf'),
@@ -36,18 +34,10 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <MainView>
-        <ResultPopup
-          isOpen={isPopupOpen}
-          isSuccess={isSuccess}
-          setIsPopupOpen={setIsPopupOpen}
-        />
         <ThemedView style={styles.titleContainer}>
           <ThemedText type="title">Выберите 1 комбинацию</ThemedText>
         </ThemedView>
-        <PasswordInput
-          setIsPopupOpen={setIsPopupOpen}
-          setIsSuccess={setIsSuccess}
-        />
+        <PasswordInput/>
       </MainView>
     </ThemeProvider>
   );

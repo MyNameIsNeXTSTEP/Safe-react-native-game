@@ -1,14 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, TouchableHighlight } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { ThemedView } from './ThemedView';
 import { passwordCompareList } from '@/constants';
 import { green } from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-interface IProps {
-  setIsPopupOpen: React.Dispatch<React.SetStateAction<boolean>>,
-  setIsSuccess: React.Dispatch<React.SetStateAction<boolean>>,
-}
+import ResultPopup from './ResultPopup';
 
 const storePassword = async (value: string) => {
   try {
@@ -26,12 +22,12 @@ const getPassword = async (value: string) => {
   }
 };
 
-const PasswordInput = ({
-  setIsPopupOpen,
-  setIsSuccess,
-}: IProps) => {
+const PasswordInput = () => {
   const [usedPasswordsList, setUsedPasswordKeys] = useState<string[]>([]);
   const [password, setPassword] = useState<string | null | undefined>(null);
+
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -70,6 +66,11 @@ const PasswordInput = ({
 
   return (
     <View style={styles.container}>
+      <ResultPopup
+        isOpen={isPopupOpen}
+        isSuccess={isSuccess}
+        setIsPopupOpen={setIsPopupOpen}
+      />
       <View style={styles.safe}>
         <ThemedView style={styles.digitButtonsContainer}>
           {
