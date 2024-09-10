@@ -15,14 +15,14 @@ const ResultPopup = ({
 }: IProps) => {
   const [loading, setLoading] = useState(false);
 
-  // useEffect(() => {
-  //   let timeoutId: number;
-  //   if (isOpen) {
-  //     setLoading(true);
-  //     timeoutId = setTimeout(() => setLoading(false), 2000);
-  //   }
-  //   return () => clearTimeout(timeoutId);
-  // }, [isOpen]);
+  useEffect(() => {
+    let timeoutId: number;
+    if (isOpen) {
+      setLoading(true);
+      timeoutId = setTimeout(() => setLoading(false), 2000);
+    }
+    return () => clearTimeout(timeoutId);
+  }, [isOpen]);
 
   return <div>
     {
@@ -53,7 +53,7 @@ const ResultPopup = ({
                 style={styles.exit}
                 onClick={() => setIsPopupOpen(false)}
               >
-                <p>❌</p>
+                <p>закрыть</p>
               </div>
             }
           </ThemedView>
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '100%',
     height: '100%',
-    zIndex: 1000,
+    zIndex: 3,
     top: 0,
     bottom: 0,
     left: 0,
@@ -86,7 +86,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     margin: 'auto',
     color: 'white',
-    fontSize: 20,
   },
   containerFail: {
     backgroundColor: 'red',
@@ -106,15 +105,7 @@ const styles = StyleSheet.create({
     top: 0,
     right: 0,
     cursor: 'pointer',
-    width: 'auto',
-    height: 'auto',
-    padding: 4,
     marginRight: 12,
-    fontSize: 13,
-
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: 'black',
   },
 });
 
