@@ -56,39 +56,40 @@ const PasswordInput = () => {
     )
   });
 
-  useEffect(() => {
-    let timeoutId: number;
-    if (isPopupOpen) {
-      setLoading(true);
-      timeoutId = setTimeout(() => setLoading(false), 2000);
-    }
-    return () => clearTimeout(timeoutId);
-  }, [isPopupOpen]);
+  // useEffect(() => {
+  //   let timeoutId: number;
+  //   if (isPopupOpen) {
+  //     setLoading(true);
+  //     timeoutId = setTimeout(() => setLoading(false), 2000);
+  //   }
+  //   return () => clearTimeout(timeoutId);
+  // }, [isPopupOpen]);
+
+  const updateStyles = useCallback(async (buttonTypeStyle: any) => {
+    setAllList(prevMap => {
+      return prevMap.set(
+        password,
+        () => <TouchableOpacity
+          key={password}
+          // @ts-ignore
+          disabled={usedPasswords.includes(password)}
+          style={
+            { ...styles.digitButton, ...buttonTypeStyle }
+          }
+          // @ts-ignore
+          onPress={(e) => handlePasswordPress(password)}
+        >
+          <Text style={styles.digitButtonText}>{password}</Text>
+        </TouchableOpacity>
+      );
+    })
+  }, [password, usedPasswords]);
 
   useEffect(() => {
     const buttonTypeStyle = isSuccess ? styles.successButton : styles.usedButton;
     console.log(buttonTypeStyle);
-    const updateStyles = async () => {
-      setAllList(prevMap => {
-        return prevMap.set(
-          password,
-          () => <TouchableOpacity
-            key={password}
-            // @ts-ignore
-            disabled={usedPasswords.includes(password)}
-            style={
-              { ...styles.digitButton, ...buttonTypeStyle }
-            }
-            // @ts-ignore
-            onPress={(e) => handlePasswordPress(password)}
-          >
-            <Text style={styles.digitButtonText}>{password}</Text>
-          </TouchableOpacity>
-        );
-      })
-    };
-    updateStyles();
-  }, [usedPasswords, password, isSuccess]);
+    updateStyles(buttonTypeStyle);
+  }, [password, isSuccess]);
 
   const checkIfPasswordWasUsed = useCallback(async (pswd: string) => {
     try {
@@ -99,12 +100,13 @@ const PasswordInput = () => {
     }
   }, [password]);
 
+  console.log(password);
+
   const handlePasswordPress = (pswd?: string) => {
     if (!pswd) return;
     setPassword(pswd);
 
     console.log(pswd);
-
     checkIfPasswordWasUsed(pswd).then(async res => {
       try {
         if (!res) await storePassword(pswd);

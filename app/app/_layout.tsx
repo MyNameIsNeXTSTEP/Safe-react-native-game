@@ -10,7 +10,6 @@ import MainView from '@/components/MainView';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import PasswordInput from '@/components/PasswordTale';
-import ResultPopup from '@/components/ResultPopup';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
