@@ -16,42 +16,51 @@ const ResultPopup = ({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
-   setTimeout(() => setLoading(false), 2000);
+    let timeoutId: number;
+    if (isOpen) {
+      setLoading(true);
+      timeoutId = setTimeout(() => setLoading(false), 2000);
+    }
+    return () => clearTimeout(timeoutId);
   }, [isOpen]);
 
-  return <>
+  return <div>
     {
       isOpen
         ?
         <View style={styles.overlay}>
-
-          {loading
-            ? <p>...</p>
-            : <ThemedView style={isSuccess
-              ? styles.container
-              : { ...styles.container, ...styles.containerFail }
-            }>
-              <p style={{ fontFamily: 'times_new_roman' }}>
-                {
-                  isSuccess
+          <ThemedView
+            style={
+              loading
+                ? { ...styles.container, ...styles.containerLoader }
+                : isSuccess
+                  ? styles.container
+                  : { ...styles.container, ...styles.containerFail }
+            }
+          >
+            <p style={{ fontFamily: 'times_new_roman' }}>
+              {
+                loading
+                  ? 'Проверяем...'
+                  : isSuccess
                     ? 'Unlocked ✅'
                     : 'Пароль не верный'
-                }
-              </p>
-              <div
+              }
+            </p>
+            {
+              !loading && <div
                 className='exit-btn'
                 style={styles.exit}
                 onClick={() => setIsPopupOpen(false)}
               >
                 <p>❌</p>
               </div>
-            </ThemedView>
-          }
+            }
+          </ThemedView>
         </View>
         : null
     }
-  </>;
+  </div>;
 };
 
 const styles = StyleSheet.create({
@@ -81,6 +90,9 @@ const styles = StyleSheet.create({
   },
   containerFail: {
     backgroundColor: 'red',
+  },
+  containerLoader: {
+    backgroundColor: 'orange',
   },
   loader: {
     position: 'relative',

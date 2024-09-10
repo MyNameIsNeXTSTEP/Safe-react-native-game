@@ -57,8 +57,6 @@ const PasswordInput = ({
     );
   };
 
-  console.log(usedPasswordsList)
-
   return (
     <View style={styles.container}>
       <View style={styles.safe}>
