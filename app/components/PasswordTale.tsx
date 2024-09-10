@@ -22,14 +22,6 @@ const getPassword = async (value: string) => {
   }
 };
 
-const usePasswordState = (initialPasswords: string[] = []) => {
-  const [usedPasswords, setUsedPasswords] = useState(initialPasswords);
-  const updateUsedPasswords = useCallback((newPassword: string) => {
-    setUsedPasswords([...usedPasswords, newPassword]);
-  }, [usedPasswords]);
-  return [usedPasswords, updateUsedPasswords];
-};
-
 const mapList = new Map();
 
 const PasswordInput = () => {
@@ -37,7 +29,11 @@ const PasswordInput = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [allList, setAllList] = useState(mapList)
-  const { 0: usedPasswords, 1: updateUsedPasswords } = usePasswordState();
+
+  const [usedPasswords, setUsedPasswords] = useState<string[]>([]);
+  const updateUsedPasswords = useCallback((newPassword: string) => {
+    setUsedPasswords([...usedPasswords, newPassword]);
+  }, [usedPasswords]);
 
   const [loading, setLoading] = useState(false);
 
@@ -46,7 +42,6 @@ const PasswordInput = () => {
       pswd,
       () => <TouchableOpacity
         key={pswd}
-        // @ts-ignore
         disabled={usedPasswords.includes(pswd)}
         style={styles.digitButton}
         onPress={(e) => handlePasswordPress(pswd)}
@@ -55,15 +50,6 @@ const PasswordInput = () => {
       </TouchableOpacity>
     )
   });
-
-  // useEffect(() => {
-  //   let timeoutId: number;
-  //   if (isPopupOpen) {
-  //     setLoading(true);
-  //     timeoutId = setTimeout(() => setLoading(false), 2000);
-  //   }
-  //   return () => clearTimeout(timeoutId);
-  // }, [isPopupOpen]);
 
   const updateStyles = useCallback(async (buttonTypeStyle: any) => {
     setAllList(prevMap => {
@@ -89,7 +75,7 @@ const PasswordInput = () => {
     const buttonTypeStyle = isSuccess ? styles.successButton : styles.usedButton;
     console.log(buttonTypeStyle);
     updateStyles(buttonTypeStyle);
-  }, [password, isSuccess]);
+  }, [password, usedPasswords])
 
   const checkIfPasswordWasUsed = useCallback(async (pswd: string) => {
     try {
@@ -115,7 +101,6 @@ const PasswordInput = () => {
       }
     });
 
-    // @ts-ignore
     updateUsedPasswords(pswd);
     setIsPopupOpen(true);
 
@@ -140,30 +125,25 @@ const PasswordInput = () => {
           <View style={stylesPopup.overlay}>
             <ThemedView
               style={
-                loading
-                  ? { ...stylesPopup.container, ...stylesPopup.containerLoader }
-                  : isSuccess
+                  isSuccess
                     ? stylesPopup.container
                     : { ...stylesPopup.container, ...stylesPopup.containerFail }
               }
             >
               <ThemedText style={{ color: 'white' }}>
                 {
-                  loading
-                    ? 'Проверяем...'
-                    : isSuccess
+                    isSuccess
                       ? 'Unlocked ✅'
                       : 'Пароль не верный'
                 }
               </ThemedText>
               {
-                !loading && <div
-                  className='exit-btn'
+                <TouchableOpacity
                   style={stylesPopup.exit}
-                  onClick={() => setIsPopupOpen(false)}
+                  onPress={() => setIsPopupOpen(false)}
                 >
                   <ThemedText style={{ color: 'white' }}>закрыть</ThemedText>
-                </div>
+                </TouchableOpacity>
               }
             </ThemedView>
           </View>
