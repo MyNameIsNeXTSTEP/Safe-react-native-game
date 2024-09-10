@@ -22,19 +22,61 @@ const getPassword = async (value: string) => {
   }
 };
 
-const PasswordInput = () => {
-  const [usedPasswordsList, setUsedPasswordKeys] = useState<string[]>([]);
-  const [password, setPassword] = useState<string | null | undefined>(null);
+const usePasswordState = (initialPasswords: string[] = []) => {
+  const [usedPasswords, setUsedPasswords] = useState(initialPasswords);
+  const updateUsedPasswords = useCallback((newPassword: string) => {
+    setUsedPasswords([...usedPasswords, newPassword]);
+  }, [usedPasswords]);
+  return [usedPasswords, updateUsedPasswords];
+};
 
+const mapList = new Map();
+
+const PasswordInput = () => {
+  const [password, setPassword] = useState<string | null | undefined>(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [allList, setAllList] = useState(mapList)
+  const { 0: usedPasswords, 1: updateUsedPasswords } = usePasswordState();
+
+  passwordCompareList.map(pswd => {
+    mapList.set(
+      pswd,
+      () => <TouchableOpacity
+        key={pswd}
+        // @ts-ignore
+        disabled={usedPasswords.includes(pswd)}
+        style={styles.digitButton}
+        onPress={(e) => handlePasswordPress(pswd)}
+      >
+        <Text style={styles.digitButtonText}>{pswd}</Text>
+      </TouchableOpacity>
+    )
+  });
 
   useEffect(() => {
-    (async () => {
-      const used = await AsyncStorage.getAllKeys();
-      setUsedPasswordKeys([...used]);
-    })();
-  }, [password]);
+    const buttonTypeStyle = isSuccess ? styles.successButton : styles.usedButton;
+    const updateStyles = async () => {
+      setAllList(prevMap => {
+        return prevMap.set(
+          password,
+          () => <TouchableOpacity
+            key={password}
+            // @ts-ignore
+            disabled={usedPasswords.includes(password)}
+            style={
+              { ...styles.digitButton, ...buttonTypeStyle }
+            }
+            // @ts-ignore
+            onPress={(e) => handlePasswordPress(password)}
+          >
+            <Text style={styles.digitButtonText}>{password}</Text>
+          </TouchableOpacity>
+        );
+      })
+    };
+    updateStyles();
+  }, [usedPasswords, password, isSuccess]);
 
   const checkIfPasswordWasUsed = useCallback(async (pswd: string) => {
     try {
@@ -45,9 +87,8 @@ const PasswordInput = () => {
     }
   }, [password]);
 
-  const handlePasswordPress = async (pswd?: string) => {
+  const handlePasswordPress = useCallback((pswd?: string) => {
     if (!pswd) return;
-
     setPassword(pswd);
 
     checkIfPasswordWasUsed(pswd).then(async res => {
@@ -58,39 +99,29 @@ const PasswordInput = () => {
       }
     });
 
+    // @ts-ignore
+    updateUsedPasswords(pswd);
     setIsPopupOpen(true);
+
     setIsSuccess(
       pswd === '8336'
     );
-  };
+  }, []);
 
   return (
     <View style={styles.container}>
+      <View style={styles.safe}>
+        <ThemedView style={styles.digitButtonsContainer}>
+          {
+            passwordCompareList.map(pswd => allList.get(pswd)())
+          }
+        </ThemedView>
+      </View>
       <ResultPopup
         isOpen={isPopupOpen}
         isSuccess={isSuccess}
         setIsPopupOpen={setIsPopupOpen}
       />
-      <View style={styles.safe}>
-        <ThemedView style={styles.digitButtonsContainer}>
-          {
-            passwordCompareList.map(pswd => {
-              return <TouchableOpacity
-                key={pswd}
-                // disabled={checkIfPasswordWasUsed(pswd)}
-                style={
-                  usedPasswordsList.includes(pswd)
-                    ? { ...styles.digitButton, ...styles.usedButton }
-                    : styles.digitButton
-                }
-                onPress={(e) => handlePasswordPress(pswd)}
-              >
-                <Text style={styles.digitButtonText}>{pswd}</Text>
-              </TouchableOpacity>
-            })
-          }
-        </ThemedView>
-      </View>
     </View>
   );
 };
@@ -131,6 +162,9 @@ const styles = StyleSheet.create({
   },
   usedButton: {
     backgroundColor: 'gray',
+  },
+  successButton: {
+    backgroundColor: 'green',
   },
   digitButtonText: {
     fontSize: 20,
