@@ -40,17 +40,28 @@ const PasswordInput = ({
     })();
   }, [password]);
 
-  const checkIfPasswordWasUsed = async (pswd: string) => {
-    const wasUsed = !!(await getPassword(pswd))?.length;
-    console.log(wasUsed)
-    return wasUsed;
-  };
+  const checkIfPasswordWasUsed = useCallback(async (pswd: string) => {
+    try {
+      const wasUsed = !!(await getPassword(pswd))?.length;
+      return wasUsed;
+    } catch (error) {
+      console.log(error);
+    }
+  }, [password]);
 
   const handlePasswordPress = async (pswd?: string) => {
     if (!pswd) return;
+
     setPassword(pswd);
-    const wasUsed = await checkIfPasswordWasUsed(pswd);
-    if (!wasUsed) await storePassword(pswd);
+
+    checkIfPasswordWasUsed(pswd).then(async res => {
+      try {
+        if (!res) await storePassword(pswd);
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
     setIsPopupOpen(true);
     setIsSuccess(
       pswd === '8336'
