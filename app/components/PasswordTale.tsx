@@ -4,6 +4,7 @@ import { ThemedView } from './ThemedView';
 import { passwordCompareList } from '@/constants';
 import { green } from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ThemedText } from './ThemedText';
 
 const storePassword = async (value: string) => {
   try {
@@ -131,47 +132,40 @@ const PasswordInput = () => {
         </ThemedView>
       </View>
 
-      <div>
-        {
-          isPopupOpen
-            &&
-            <View style={stylesPopup.overlay}>
-              <ThemedView
-                style={
-                  loading
-                    ? { ...stylesPopup.container, ...stylesPopup.containerLoader }
-                    : isSuccess
-                      ? stylesPopup.container
-                      : { ...stylesPopup.container, ...stylesPopup.containerFail }
-                }
-              >
-                <p style={{ fontFamily: 'times_new_roman' }}>
-                  {
-                    loading
-                      ? 'Проверяем...'
-                      : isSuccess
-                        ? 'Unlocked ✅'
-                        : 'Пароль не верный'
-                  }
-                </p>
+      {
+        isPopupOpen
+          &&
+          <View style={stylesPopup.overlay}>
+            <ThemedView
+              style={
+                loading
+                  ? { ...stylesPopup.container, ...stylesPopup.containerLoader }
+                  : isSuccess
+                    ? stylesPopup.container
+                    : { ...stylesPopup.container, ...stylesPopup.containerFail }
+              }
+            >
+              <ThemedText style={{ color: 'white' }}>
                 {
-                  !loading && <div
-                    className='exit-btn'
-                    style={stylesPopup.exit}
-                    onClick={() => setIsPopupOpen(false)}
-                  >
-                    <p>закрыть</p>
-                  </div>
+                  loading
+                    ? 'Проверяем...'
+                    : isSuccess
+                      ? 'Unlocked ✅'
+                      : 'Пароль не верный'
                 }
-              </ThemedView>
-            </View>
-        }
-      </div>
-      {/* <ResultPopup
-        isOpen={isPopupOpen}
-        isSuccess={isSuccess}
-        setIsPopupOpen={setIsPopupOpen}
-      /> */}
+              </ThemedText>
+              {
+                !loading && <div
+                  className='exit-btn'
+                  style={stylesPopup.exit}
+                  onClick={() => setIsPopupOpen(false)}
+                >
+                  <ThemedText style={{ color: 'white' }}>закрыть</ThemedText>
+                </div>
+              }
+            </ThemedView>
+          </View>
+      }
     </View>
   );
 };
@@ -254,7 +248,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     margin: 5,
-    fontFamily: 'times_new_roman',
   },
   usedButton: {
     backgroundColor: 'gray',
