@@ -66,11 +66,11 @@ const PasswordInput = () => {
 
   return (
     <View style={styles.container}>
-      <ResultPopup
+      {/* <ResultPopup
         isOpen={isPopupOpen}
         isSuccess={isSuccess}
         setIsPopupOpen={setIsPopupOpen}
-      />
+      /> */}
       <View style={styles.safe}>
         <ThemedView style={styles.digitButtonsContainer}>
           {
