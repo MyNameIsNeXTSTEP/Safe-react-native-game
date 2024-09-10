@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { ThemedView } from './ThemedView';
 import { passwordCompareList } from '@/constants';
@@ -30,12 +30,26 @@ const PasswordInput = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [allList, setAllList] = useState(mapList)
 
+  const createButtonStates = (passwords: string[]) => {
+    return passwords.reduce((acc: any, password: string) => {
+      acc[password] = () => <TouchableOpacity
+        key={password}
+        disabled={usedPasswords.includes(password)}
+        style={styles.digitButton}
+        onPress={(e) => handlePasswordPress(password)}
+      >
+        <Text style={styles.digitButtonText}>{password}</Text>
+      </TouchableOpacity>;
+      return acc;
+    }, {});
+  };
+
+  const [buttonStates, setButtonStates] = useState(createButtonStates(passwordCompareList));
+
   const [usedPasswords, setUsedPasswords] = useState<string[]>([]);
   const updateUsedPasswords = useCallback((newPassword: string) => {
     setUsedPasswords([...usedPasswords, newPassword]);
   }, [usedPasswords]);
-
-  const [loading, setLoading] = useState(false);
 
   passwordCompareList.map(pswd => {
     mapList.set(
@@ -50,32 +64,6 @@ const PasswordInput = () => {
       </TouchableOpacity>
     )
   });
-
-  const updateStyles = useCallback(async (buttonTypeStyle: any) => {
-    setAllList(prevMap => {
-      return prevMap.set(
-        password,
-        () => <TouchableOpacity
-          key={password}
-          // @ts-ignore
-          disabled={usedPasswords.includes(password)}
-          style={
-            { ...styles.digitButton, ...buttonTypeStyle }
-          }
-          // @ts-ignore
-          onPress={(e) => handlePasswordPress(password)}
-        >
-          <Text style={styles.digitButtonText}>{password}</Text>
-        </TouchableOpacity>
-      );
-    })
-  }, [password, usedPasswords]);
-
-  useEffect(() => {
-    const buttonTypeStyle = isSuccess ? styles.successButton : styles.usedButton;
-    console.log(buttonTypeStyle);
-    updateStyles(buttonTypeStyle);
-  }, [password, usedPasswords])
 
   const checkIfPasswordWasUsed = useCallback(async (pswd: string) => {
     try {
@@ -101,6 +89,29 @@ const PasswordInput = () => {
       }
     });
 
+    const buttonTypeStyle = isSuccess ? styles.successButton : styles.usedButton;
+
+    setButtonStates((prev: any) => {
+      console.log(prev)
+      return {
+        ...prev,
+        [pswd]: () => <TouchableOpacity
+          key={password}
+          // @ts-ignore
+          disabled={usedPasswords.includes(password)}
+          style={
+            { ...styles.digitButton, ...buttonTypeStyle }
+          }
+          // @ts-ignore
+          onPress={(e) => handlePasswordPress(password)}
+        >
+          <Text style={styles.digitButtonText}>{password}</Text>
+        </TouchableOpacity>
+      }
+    });
+
+    console.log(buttonStates[pswd])
+
     updateUsedPasswords(pswd);
     setIsPopupOpen(true);
 
@@ -114,7 +125,7 @@ const PasswordInput = () => {
       <View style={styles.safe}>
         <ThemedView style={styles.digitButtonsContainer}>
           {
-            passwordCompareList.map(pswd => allList.get(pswd)())
+            passwordCompareList.map(pswd => buttonStates[pswd]())
           }
         </ThemedView>
       </View>
