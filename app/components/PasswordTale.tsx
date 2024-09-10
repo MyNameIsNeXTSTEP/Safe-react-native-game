@@ -56,6 +56,7 @@ const PasswordInput = () => {
 
   useEffect(() => {
     const buttonTypeStyle = isSuccess ? styles.successButton : styles.usedButton;
+    console.log(buttonTypeStyle);
     const updateStyles = async () => {
       setAllList(prevMap => {
         return prevMap.set(
@@ -87,7 +88,7 @@ const PasswordInput = () => {
     }
   }, [password]);
 
-  const handlePasswordPress = useCallback((pswd?: string) => {
+  const handlePasswordPress = (pswd?: string) => {
     if (!pswd) return;
     setPassword(pswd);
 
@@ -106,7 +107,7 @@ const PasswordInput = () => {
     setIsSuccess(
       pswd === '8336'
     );
-  }, []);
+  };
 
   return (
     <View style={styles.container}>
